@@ -1,0 +1,33 @@
+#!/bin/bash
+
+
+## load modules 
+module load gcc/4.8.2 gdc samtools/1.9 java/1.8.0_73 picard-tools/2.20.2 sambamba/0.6.8
+
+#information for each individual, respectively each bam file
+ind=$LSB_JOBINDEX
+short="DF$ind"
+rg=$(echo "0$LSB_JOBINDEX")
+library=$( echo "library$short")
+lane=$( echo "1.$rg")
+
+###Defining all the paths 
+input="/path/to/input/bam"
+output="/path/to/output/directory"
+proc=1
+##====================================================================================================
+#Forward and reverse
+
+picard FixMateInformation I=${input}/${short}_FR_h.bam O=/dev/stdout VALIDATION_STRINGENCY=LENIENT | picard AddOrReplaceReadGroups I=/dev/stdin O=${TMPDIR}/${short}_int1_h.bam RGID=${lane} RGlb=${library} RGPL=illumina RGSM=${rg} RGPU=unit1  
+sambamba sort ${TMPDIR}/${short}_int1_h.bam -o ${TMPDIR}/${short}_FR_sorted_h.bam -t ${proc} -m 50GB --tmpdir ${TMPDIR}
+picard MarkDuplicates TMP_DIR=${TMPDIR} INPUT=${TMPDIR}/${short}_FR_sorted_h.bam OUTPUT=${output}/${short}_FR_sorted_dup_WFRef_hiseq.bam METRICS_FILE=${output}/${short}_FR_duplication_metrics_WFRef.txt VALIDATION_STRINGENCY=LENIENT MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1024
+sambamba index ${output}/${short}_FR_sorted_dup_WFRef_hiseq.bam
+rm ${TMPDIR}/*
+
+#Merged 
+picard FixMateInformation I=${input}/${short}_M_h.bam O=/dev/stdout VALIDATION_STRINGENCY=LENIENT | picard AddOrReplaceReadGroups I=/dev/stdin O=${TMPDIR}/${short}_M_read_group_h.bam RGID=${lane} RGlb=${library} RGPL=illumina RGSM=${rg} RGPU=unit1 VALIDATION_STRINGENCY=LENIENT
+sambamba sort ${TMPDIR}/${short}_M_read_group_h.bam -o ${TMPDIR}/${short}_M_sorted_h.bam -t ${proc} -m 50GB --tmpdir ${TMPDIR}
+picard MarkDuplicates TMP_DIR=${TMPDIR} INPUT=${TMPDIR}/${short}_M_sorted_h.bam OUTPUT=${output}/${short}_M_sorted_dup_WFRef_hiseq.bam METRICS_FILE=${output}/${short}_M_duplication_metrics_WFRef.txt VALIDATION_STRINGENCY=LENIENT MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1024
+sambamba index ${output}/${short}_M_sorted_dup_WFRef_hiseq.bam
+##====================================================================================================
+

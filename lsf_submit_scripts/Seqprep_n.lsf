@@ -1,0 +1,18 @@
+#!/bin/bash
+## load modules 
+module load gcc/4.8.2 gdc seqprep/1
+
+#get name of the individual that will be mapped 
+ind=$LSB_JOBINDEX
+name="$ind"
+
+#Defining all the paths 
+input="/path/to/polyg/trimmed/fastq/files"
+out="/path/to/write/output"
+
+#define polyg trimmed forward and reverse fastq files
+forward="${input}/DF${name}_.R1.polyg.n.fastq.gz"
+reverse="${input}/DF${name}_.R2.polyg.n.fastq.gz"
+
+##seqprep on poly g trimmed output
+SeqPrep -f ${forward} -r ${reverse} -1 ${out}/DF${name}_R1.polyg.n.fastq.gz -2 ${out}/DF${name}_R2.polyg.n.fastq.gz -s ${out}/DF${name}_mr.polyg.n.fastq.gz -L 25
