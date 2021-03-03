@@ -129,43 +129,13 @@ bsub -n 1 -W 2:00 -w "ended(Merging_single_phased_vcf_min30_salmon)" -J "Merging
 #=========================================================================================
 #Transform to .geno.gz format
 bsub -n 1 -W 12:00 -J "Parse_VCF.py" -w "ended(Merging_single_phased_vcf_only_kilch)"  -R "rusage[mem=1000]" -o ./Parse_VCF_Protocol.txt < ./parse_vcf.lsf
-
-
-
-###########
-###########
-###########
-
-
-
-
-
 #Run PhyML in windows along the genome
 bsub -n 1 -W 48:00 -J "Sliding_PhyML" -w "ended(Parse_VCF.py)" -R "rusage[mem=12250]" -o ./Sliding_PhyML_Protocol.txt < ./Sliding_PhyML.lsf
 #Actual TWISST run:
-bsub -n 1 -W 48:00 -J "TWISST" -w "ended(Sliding_PhyML)" -R "rusage[mem=1000]" -o ./TWISST_Protocol.txt < ./twisst_single.lsf
-
+bsub -n 1 -W 48:00 -J "TWISST" -w "ended(Sliding_PhyML)" -R "rusage[mem=1000]" -o ./TWISST_Protocol.txt < ./twisst.lsf
 
 
 #=========================================================================================
 #15 Selscan
 #=========================================================================================
 bsub -n 1 -W 2:00 -w "ended(Sliding_PhyML)"-J "Selscan" -R "rusage[mem=1000]" -o ./Selscan_LOGFILE.txt < ./selscan.lsf
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
