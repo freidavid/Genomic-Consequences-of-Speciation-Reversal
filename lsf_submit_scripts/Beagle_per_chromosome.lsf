@@ -1,0 +1,32 @@
+#!/bin/bash
+#get the jobindex
+chr=$LSB_JOBINDEX
+
+#number of processors (hyperthread)
+proc=2
+
+#define paths
+name="min_30_ind_salmon"
+in_path="/path/to/per/chromosome/vcf/files/from/step_10"
+index="./WF_wtdbg2.chr.fasta.fai"
+out="/output/path"
+
+#get the chromosome 
+chromosome=$(cat ${index} | cut -f1 | head -n40 | sed -n ${chr}'p')
+
+## load modules 
+module load gcc/4.8.2 gdc beagle/4.1 java/1.8.0_101 gcc/4.8.2 gdc 
+
+#phase the whole data set
+beagle gl=$in_path/${chromosome}${name}.vcf.gz out=${TMPDIR}/${chromosome}output_for_beagle2 impute=false nthreads=${proc} window=2000 overlap=200 gprobs=false
+beagle gt=${TMPDIR}/${chromosome}output_for_beagle2.vcf.gz out=${out}/${chromosome}${name}_phased impute=false nthreads=${proc} window=2000 overlap=200 gprobs=false
+rm ${TMPDIR}/output_for_beagle2.vcf.gz
+
+
+#Extract only kilchs and phase it for selection scan
+zcat ${in_path}/${chromosome}${name}.vcf.gz |cut -f1-20 > ${in_path}/${chromosome}_int.vcf
+bgzip ${in_path}/${chromosome}_int.vcf
+beagle gl=$in_path/${chromosome}_int.vcf.gz out=${TMPDIR}/${chromosome}output_for_beagle2 impute=false nthreads=${proc} window=2000 overlap=200 gprobs=false
+beagle gt=${TMPDIR}/${chromosome}output_for_beagle2.vcf.gz out=${out}/${chromosome}${name}_phased_only_kilch impute=false nthreads=${proc} window=2000 overlap=200 gprobs=false
+rm ${TMPDIR}/output_for_beagle2.vcf.gz
+rm bgzip ${in_path}/${chromosome}_int.vcf.gz

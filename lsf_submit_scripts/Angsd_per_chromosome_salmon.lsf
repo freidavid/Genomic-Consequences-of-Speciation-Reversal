@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#get the jobindex
+chr=$LSB_JOBINDEX
+
+## load modules 
+module load gcc/4.8.2 gdc angsd/0.925
+
+#number of processors 
+proc=2
+
+#define the paths
+bam_path="/path/to/bam/files"
+index="./WF_wtdbg2.chr.fasta.fai"
+out="/path/to/write/output"
+#mapped salmon outgroup:
+salmon="./salmon_complete.bam" 
+
+#get the chromosome 
+chromosome=$(cat ${index} | cut -f1 | head -n40 | sed -n ${chr}'p')
+
+###############################################################################################
+#Angsd:
+#Create a list with all relevant bamfiles:
+ls ${bam_path}/*.bam > ${out}/bam.filelist_${chromosome}
+#add Salmon
+ls ${bam_path}/salmon_complete.bam >> ${out}/bam.filelist_${chromosome}
+
+##########################################################################################
+
+#get a file with only the sites that we want to genotype, to get a file including the outgroup but only at sites 
+#that are variable in our whitefish data set. Using the file from the step 6/7 that ran with -minInd 30. 
+zcat ./min_30_ind.vcf.gz  | cut -f 1-2 > ${out}/global_intersect_${chromosome}.txt
+
+#Index intersect file
+angsd sites index ${out}/global_intersect_${chromosome}.txt
+
+
+angsd -dosnpstat 1 -doHWE 1 -GL 1 -r ${chromosome} -out ${out}/${chromosome}_min_30_ind_salmon -nThreads ${proc} -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1 -bam ${out}/bam.filelist_${chromosome} -minMapQ 30 -minQ 20 -remove_bads 1 -uniqueOnly 1 -only_proper_pairs 0 -doGlf 2 -doPost 1 -doVcf 1 -skipTriallelic 1 -minIndDepth 2 -sb_pval 0.05 -qscore_pval 0.05 -edge_pval 0.05 -mapq_pval 0.05 -minInd 30 -sites ${out}/global_intersect_${chromosome}.txt

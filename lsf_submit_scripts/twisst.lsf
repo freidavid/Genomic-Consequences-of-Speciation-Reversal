@@ -1,0 +1,69 @@
+#!/bin/bash
+
+#load modules
+module load python/2.7.6
+
+#path to python script twisst.py downloaded from https://github.com/simonhmartin/twisst/blob/master/twisst.py
+twisst="twisst.py"
+#path to results:
+input="/paht/to/output/of/sliding_phyml"
+#path to results:
+output="/paht/to/output"
+#window size of input data:
+wind_size=50000
+
+#########################################################################
+
+FILE=${input}/phyml.50000bp.trees.gz
+
+#Defining groups for twisst
+kilch_1937="C._gutturosus ind0_A,ind0_B,ind1_A,ind1_B,ind3_A,ind3_B,ind4_A,ind4_B,ind5_A,ind5_B,ind6_A,ind6_B,ind7_A,ind7_B,ind8_A,ind8_B,ind9_A,ind9_B,ind10_A,ind10_B"
+salmon="salmon ind32_A,ind32_B"
+blaufelchen_1946="C._wartmanni_pre ind16_A,ind16_B,ind17_A,ind17_B"
+
+
+blaufelchen_2015="C._wartmanni_post ind26_A,ind26_B"
+python ${twisst} -t ${FILE} -w ${output}/bf.phyml.${wind_size}_DF123446.csv.gz --outputTopos ${output}/bf_final.w${wind_size}.topos  -g ${blaufelchen_1946} -g ${blaufelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete 
+blaufelchen_2015="C._wartmanni_post ind27_A,ind27_B"
+python ${twisst} -t ${FILE} -w ${output}/bf.phyml.${wind_size}_DF123448.csv.gz --outputTopos ${output}/bf_final.w${wind_size}.topos  -g ${blaufelchen_1946} -g ${blaufelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete 
+blaufelchen_2015="C._wartmanni_post ind28_A,ind28_B"
+python ${twisst} -t ${FILE} -w ${output}/bf.phyml.${wind_size}_DF121.csv.gz --outputTopos ${output}/bf_final.w${wind_size}.topos  -g ${blaufelchen_1946} -g ${blaufelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete 
+blaufelchen_2015="C._wartmanni_post ind29_A,ind29_B"
+python ${twisst} -t ${FILE} -w ${output}/bf.phyml.${wind_size}_DF122.csv.gz --outputTopos ${output}/bf_final.w${wind_size}.topos  -g ${blaufelchen_1946} -g ${blaufelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete 
+blaufelchen_2015="C._wartmanni_post ind30_A,ind30_B"
+python ${twisst} -t ${FILE} -w ${output}/bf.phyml.${wind_size}_DF123.csv.gz --outputTopos ${output}/bf_final.w${wind_size}.topos  -g ${blaufelchen_1946} -g ${blaufelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete 
+blaufelchen_2015="C._wartmanni_post ind31_A,ind31_B"
+python ${twisst} -t ${FILE} -w ${output}/bf.phyml.${wind_size}_DF131.csv.gz --outputTopos ${output}/bf_final.w${wind_size}.topos  -g ${blaufelchen_1946} -g ${blaufelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete 
+
+
+#Defining groups for twisst
+gangfisch_1935="C._macrophthalmus_pre ind14_A,ind14_B,ind15_A,ind15_B"
+
+gangfisch_2015="C._macrophthalmus_post ind23_A,ind23_B"
+python ${twisst} -t ${FILE} -w ${output}/gf.phyml.${wind_size}_DF123470.csv.gz --outputTopos ${output}/gf_final.w${wind_size}.topos  -g ${gangfisch_1935} -g ${gangfisch_2015} -g ${kilch_1937} -g ${salmon} --method complete 
+gangfisch_2015="C._macrophthalmus_post ind24_A,ind24_B"
+python ${twisst} -t ${FILE} -w ${output}/gf.phyml.${wind_size}_DF123458.csv.gz --outputTopos ${output}/gf_final.w${wind_size}.topos  -g ${gangfisch_1935} -g ${gangfisch_2015} -g ${kilch_1937} -g ${salmon} --method complete 
+gangfisch_2015="C._macrophthalmus_post ind25_A,ind25_B"
+python ${twisst} -t ${FILE} -w ${output}/gf.phyml.${wind_size}_DF132.csv.gz --outputTopos ${output}/gf_final.w${wind_size}.topos  -g ${gangfisch_1935} -g ${gangfisch_2015} -g ${kilch_1937} -g ${salmon} --method complete 
+
+
+
+#Defining groups for twisst
+sandfelchen_1946="C._arenicolus ind11_A,ind11_B,ind12_A,ind12_B,ind13_A,ind13_B"
+
+sandfelchen_2015="C._arenicolus_post ind18_A,ind18_B"
+python ${twisst} -t ${FILE} -w ${output}/sf.phyml.${wind_size}_DF123477.csv.gz --outputTopos ${output}/sf_final.w${wind_size}.topos  -g ${sandfelchen_1946} -g ${sandfelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete 
+sandfelchen_2015="C._arenicolus_post ind19_A,ind19_B"
+python ${twisst} -t ${FILE} -w ${output}/sf.phyml.${wind_size}_DF123440.csv.gz --outputTopos ${output}/sf_final.w${wind_size}.topos  -g ${sandfelchen_1946} -g ${sandfelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete
+sandfelchen_2015="C._arenicolus_post ind20_A,ind20_B"
+python ${twisst} -t ${FILE} -w ${output}/sf.phyml.${wind_size}_DF126.csv.gz --outputTopos ${output}/sf_final.w${wind_size}.topos  -g ${sandfelchen_1946} -g ${sandfelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete
+sandfelchen_2015="C._arenicolus_post ind21_A,ind21_B"
+python ${twisst} -t ${FILE} -w ${output}/sf.phyml.${wind_size}_DF127.csv.gz --outputTopos ${output}/sf_final.w${wind_size}.topos  -g ${sandfelchen_1946} -g ${sandfelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete
+sandfelchen_2015="C._arenicolus_post ind22_A,ind22_B"
+python ${twisst} -t ${FILE} -w ${output}/sf.phyml.${wind_size}_DF128.csv.gz --outputTopos ${output}/sf_final.w${wind_size}.topos  -g ${sandfelchen_1946} -g ${sandfelchen_2015} -g ${kilch_1937} -g ${salmon} --method complete
+
+
+
+
+
+

@@ -1,0 +1,89 @@
+#!/bin/bash
+
+
+#Load all modules
+module load gcc/4.8.2 gdc zlib/1.2.8 openblas/0.2.13_seq plink/1.90 perl/5.18.4 zlib/1.2.8 vcftools/0.1.16 samtools/1.8 new gcc/4.8.2 r/3.4.0 java/1.8.0_73  gatk/4.0.8.1 vcftools/0.1.16
+#define paths:
+#scr_path:
+scr_path="/path/to/working/directory"
+#input vcf:
+vcf="min_30_ind_phased_only_kilch.vcf.gz"
+
+#result path:
+out="/paht/to/output/directory"
+#window size
+win_size=50000
+
+#index vcf file with bcftools
+/cluster/home/davidfrei/bin/bcftools index ${vcf}
+
+#create a list of chromosomes to run selscan on
+index="WF_wtdbg2.chr.fasta.fai"
+cat ${index} | cut -f1 | sed -n '1,3p' > $scr_path/chromosomes.txt
+cat ${index} | cut -f1 | sed -n '5,6p' >> $scr_path/chromosomes.txt
+cat ${index} | cut -f1 | sed -n '8,16p' >> $scr_path/chromosomes.txt
+cat ${index} | cut -f1 | sed -n '18,21p' >> $scr_path/chromosomes.txt
+cat ${index} | cut -f1 | sed -n '23,27p' >> $scr_path/chromosomes.txt
+cat ${index} | cut -f1 | sed -n '29,31p' >> $scr_path/chromosomes.txt
+cat ${index} | cut -f1 | sed -n '33,34p' >> $scr_path/chromosomes.txt
+cat ${index} | cut -f1 | sed -n '36p' >> $scr_path/chromosomes.txt
+cat ${index} | cut -f1 | sed -n '39,40p' >> $scr_path/chromosomes.txt
+
+#Set up a loop that goes through all Chromosomes in the textfile from above
+filename=${scr_path}/chromosomes.txt
+filelines=`cat $filename`
+echo Start
+for CHR in $filelines ; do
+
+
+#Only for log purposes:
+echo "###########################################################################################################"
+echo "starting estimtating iHS on:"
+echo $CHR
+echo "###########################################################################################################"
+
+
+#extract only the chromosome that is currently in the loop
+bcftools view ${vcf} -r ${CHR} > ${out}/int_${CHR}.vcf
+chr=$(echo $CHR |  awk -F '_' '{print $2}')
+sed -i s/${CHR}/${chr}/g ${out}/int_${CHR}.vcf
+
+
+#bgzip new vcf file
+bgzip ${out}/int_${CHR}.vcf
+
+
+#Create plink map file for this chromsome
+plink --vcf ${out}/int_${CHR}.vcf.gz --recode --out ${out}/plink.${CHR} --allow-extra-chr
+
+#Fake map file with linear recombination rate (actually not useful anymore anymore, as
+#nSL does not use recombination information. I had to that for iHS, which was the statistics
+#I used before. So this bit can actually be ingored)
+Rscript fake_plink_map.R -i ${out}/plink.${CHR}.map -r 0.76 -o ${out}/plink.${CHR}fake.map
+
+#run selscan on the current chromosome
+selscan --nsl --map ${out}/plink.${CHR}fake.map --vcf ${out}/int_${CHR}.vcf.gz --out ${out}/${chr}.selscan --keep-low-freq --maf 0
+
+
+#delete intermediate files
+rm ${out}/int_${CHR}.vcf.gz
+rm ${out}/plink.${CHR}.nosex
+rm ${out}/plink.${CHR}.ped
+rm ${out}/plink.${CHR}.map
+rm ${out}/plink.${CHR}.log
+
+done
+
+#delete vcf file with modified chromosome names
+rm ${out}/int.vcf.gz
+rm ${out}/int.vcf.gz.csi
+
+
+#normalize output with norm
+norm --nsl --files ${out}/scaffold*.selscan.ihs.out --bins 20 --bp-win --winsize ${win_size}
+
+
+
+
+
+

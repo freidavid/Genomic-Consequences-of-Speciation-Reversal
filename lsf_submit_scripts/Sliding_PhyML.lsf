@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#Run phyml
+module load python/2.7.6
+
+#path to python script phyml_sliding_windows.py downloaded from https://github.com/simonhmartin/genomics_general/blob/master/phylo/phyml_sliding_windows.py
+sliding_phyml="phyml_sliding_windows.py"
+#path to data
+input="/path/to/input"
+#path to results:
+output="/path/to/output"
+#path to phyml executable
+executable_phyml="/path/to/pyhml/executable"
+
+#Window size 
+wind_size=50000
+
+
+#Run phyml
+python ${sliding_phyml} -g ${input}/min_30_ind_salmon_phased.geno.gz -w ${wind_size} \
+  --windType coordinate -T 5 \
+  --phyml ${executable_phyml} -p ${output}/phyml.${wind_size}bp -M 10 \
+  --model GTR -Mi 10 -Ms 4
+
+
+
+
+

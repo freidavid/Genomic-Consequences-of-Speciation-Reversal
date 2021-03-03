@@ -1,0 +1,73 @@
+#!/bin/bash
+
+topology=$LSB_JOBINDEX
+
+
+## load modules 
+module load gcc/4.8.2 gdc angsd/0.925 new gcc/4.8.2 r/3.4.0
+
+#define paths
+scr_path="/path/to/working/directory"
+out="/path/to/write/output"
+angsd="/cluster/work/gdc/shared/p641/angsd"
+
+#get recipient and donor populations
+recipient=$(sed "${topology}q;d" $scr_path/recipient.list )
+donor=$(sed "${topology}q;d" $scr_path/donor.list )
+P1=${scr_path}/${recipient}_o.list
+P2=${scr_path}/${recipient}_n.list
+P3=${scr_path}/${donor}_o.list
+P4=${scr_path}/salmon.list
+
+
+
+#Create a size file
+echo $(cat $P1 | wc -l) > ${scr_path}/${donor}_into_${recipient}_size.file.txt
+echo $(cat $P2 | wc -l) >> ${scr_path}/${donor}_into_${recipient}_size.file.txt
+echo $(cat $P3 | wc -l)  >> ${scr_path}/${donor}_into_${recipient}_size.file.txt
+echo $(cat $P4 | wc -l)  >> ${scr_path}/${donor}_into_${recipient}_size.file.txt
+
+
+
+cat $P1 > ${scr_path}/${donor}_into_${recipient}_D-stat.bam.list
+cat $P2 >> ${scr_path}/${donor}_into_${recipient}_D-stat.bam.list
+cat $P3 >> ${scr_path}/${donor}_into_${recipient}_D-stat.bam.list
+cat $P4 >> ${scr_path}/${donor}_into_${recipient}_D-stat.bam.list
+
+
+
+
+#do the actual d_stat run
+angsd -doAbbababa2 1 -bam ${scr_path}/${donor}_into_${recipient}_D-stat.bam.list -sizeFile ${scr_path}/${donor}_into_${recipient}_size.file.txt -doCounts 1 -out ${out}/${donor}_into_${recipient}_final -useLast 1 -minQ 20 -minMapQ 30 -remove_bads 1 -uniqueOnly 1 -only_proper_pairs 0 -p 4 -blockSize 5000000 -sites ${scr_path}/global_intersect.txt -rf ${scr_path}/chromosomes.txt
+
+#Create a pop text file with pop names
+echo "${recipient}_old" > ${scr_path}/${donor}_into_${recipient}_pop.file.txt
+echo "${recipient}_new" >> ${scr_path}/${donor}_into_${recipient}_pop.file.txt
+echo "${donor}_old" >> ${scr_path}/${donor}_into_${recipient}_pop.file.txt
+echo "salmon" >> ${scr_path}/${donor}_into_${recipient}_pop.file.txt
+
+
+#Create a error text file with paths to error files
+echo "NA" > ${scr_path}/error.file.txt 
+echo "NA" >> ${scr_path}/error.file.txt 
+echo "NA" >> ${scr_path}/error.file.txt 
+echo "NA" >> ${scr_path}/error.file.txt 
+
+
+recipient=$(sed "${topology}q;d" $scr_path/recipient.list )
+donor=$(sed "${topology}q;d" $scr_path/donor.list )
+
+#Run R script downloaded from https://github.com/ANGSD/angsd/blob/master/R/estAvgError.R
+#to get final human readable results
+Rscript ./estAvgError.R angsdFile=${out}/${donor}_into_${recipient}_final out=${out}/${donor}_into_${recipient}_final sizeFile=${scr_path}/${donor}_into_${recipient}_size.file.txt nameFile=${scr_path}/${donor}_into_${recipient}_pop.file.txt 
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 

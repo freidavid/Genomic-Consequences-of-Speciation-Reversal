@@ -1,0 +1,75 @@
+#!/bin/bash
+
+#output:
+name="min_30_ind"
+
+#defining all the paths
+scr_path="/path/to/per_chromosome/beagle/files"
+index="./WF_wtdbg2.chr.fasta.fai"
+out="/path/to/write/merged beagle and vcf"
+
+#only use the well assembled chromsomes
+cat ${index} | cut -f1 | sed -n '1,3p' > $scr_path/chromosome_list.txt
+cat ${index} | cut -f1 | sed -n '5,6p' >> $scr_path/chromosome_list.txt
+cat ${index} | cut -f1 | sed -n '8,16p' >> $scr_path/chromosome_list.txt
+cat ${index} | cut -f1 | sed -n '18,21p' >> $scr_path/chromosome_list.txt
+cat ${index} | cut -f1 | sed -n '23,27p' >> $scr_path/chromosome_list.txt
+cat ${index} | cut -f1 | sed -n '29,31p' >> $scr_path/chromosome_list.txt
+cat ${index} | cut -f1 | sed -n '33,34p' >> $scr_path/chromosome_list.txt
+cat ${index} | cut -f1 | sed -n '36p' >> $scr_path/chromosome_list.txt
+cat ${index} | cut -f1 | sed -n '39,40p' >> $scr_path/chromosome_list.txt
+
+
+##############################
+#Merging beagle files from angsd
+##############################
+
+#create chromosome list and get the first chromosome
+chr1=$(cat $scr_path/chromosome_list.txt | head -n1)
+
+#this is only the header taken from an angsd output beagle file that will be merged later. Files 
+#to be merged will be attached to this header later
+zcat $scr_path/${chr1}_min_30_ind.beagle.gz | head -n1 > $out/${name}.beagle
+
+
+#loop through chromosome list and attach all single beagle files to the new merged one
+cat $scr_path/chromosome_list.txt | while read line 
+	do
+	zcat $scr_path/${line}_min_30_ind.beagle.gz | sed -n '1!p' >> $out/${name}.beagle
+	done
+
+#gzip merged file
+gzip $out/${name}.beagle
+
+
+
+
+##############################
+#Merging vcf files from angsd
+##############################
+
+#create chromosome list and get the first chromosome
+chr1=$(cat $scr_path/chromosome_list.txt | head -n1)
+
+#this is only the header taken from an angsd output beagle file that will be merged later. Files 
+#to be merged will be attached to this header later
+zcat $scr_path/${chr1}_min_30_ind.vcf.gz | head -n6 > $out/${name}.vcf
+
+
+#loop through chromosome list and attach all single beagle files to the new merged one
+cat $scr_path/chromosome_list.txt | while read line 
+	do
+	zcat $scr_path/${line}_min_30_ind.vcf.gz | tail -n+7  >> $out/${name}.vcf
+	done
+
+
+
+#gzip merged file
+gzip $out/${name}.vcf
+
+#remove not needed files
+rm $scr_path/chromosome_list.txt
+
+
+
+

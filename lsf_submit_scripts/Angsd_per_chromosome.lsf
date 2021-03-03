@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#get the jobindex
+chr=$LSB_JOBINDEX
+
+## load modules 
+module load gcc/4.8.2 gdc angsd/0.925
+
+#number of processors (hyperthread)
+proc=2
+
+
+#define the paths
+bam_path="/path/to/bam/files"
+index="./WF_wtdbg2.chr.fasta.fai"
+out="/path/to/write/output"
+
+
+#get the chromosome 
+chromosome=$(cat ${index} | cut -f1 | head -n40 | sed -n ${chr}'p')
+
+##########################################################################################
+#Create a list with all relevant bamfiles:
+
+#kilch
+ls ${bam_path}/*.bam > ${out}/bam.filelist_${chromosome}
+
+##########################################################################################
+#no missing data:
+angsd -dosnpstat 1 -doHWE 1 -GL 1 -r ${chromosome} -out ${out}/${chromosome}_min_32_ind -nThreads ${proc} -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1 -bam ${out}/bam.filelist_${chromosome} -minMapQ 30 -minQ 20 -remove_bads 1 -uniqueOnly 1 -only_proper_pairs 0 -doGlf 2 -doPost 1 -doVcf 1 -skipTriallelic 1 -minIndDepth 2 -sb_pval 0.05 -qscore_pval 0.05 -edge_pval 0.05 -mapq_pval 0.05 -minInd 32
+#two individuals missing
+angsd -dosnpstat 1 -doHWE 1 -GL 1 -r ${chromosome} -out ${out}/${chromosome}_min_30_ind -nThreads ${proc} -doMajorMinor 1 -SNP_pval 1e-6 -doMaf 1 -bam ${out}/bam.filelist_${chromosome} -minMapQ 30 -minQ 20 -remove_bads 1 -uniqueOnly 1 -only_proper_pairs 0 -doGlf 2 -doPost 1 -doVcf 1 -skipTriallelic 1 -minIndDepth 2 -sb_pval 0.05 -qscore_pval 0.05 -edge_pval 0.05 -mapq_pval 0.05 -minInd 30

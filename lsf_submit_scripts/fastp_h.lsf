@@ -1,0 +1,23 @@
+#!/bin/bash
+#load modules
+module load gdc gcc fastp/0.20.0 fastqc/0.11.4 java/1.8.0_31
+
+##Defining all the paths 
+raw_path="/path/to/raw/fastq/files"
+out="/path/to/write/output/fastq/files"
+
+#get jobindex (identifies an individual)
+name="DF${LSB_JOBINDEX}_"
+ 
+#get fastq file with forward reads 
+forward=$(find $raw_path -name "$name*L1*R1*")
+#get fastq file with reverse reads
+reverse=$(find $raw_path -name "$name*L1*R2*")
+
+#run fastp
+fastp --in1 $TMPDIR/${forward} --in2 $TMPDIR/${reverse} --trim_poly_g --disable_adapter_trimming --disable_quality_filtering --disable_length_filtering --out1 ${out}/${name}.R1.polyg.h.fastq.gz --out2 ${out}/${name}.R2.polyg.h.fastq.gz --html ${out}/${name}.polyg.h.html -V --compression 9
+
+#run fastqc on polyg trimmed reads
+fastqc -t 1 -o ${out} --noextract ${out}/${name}.R1.polyg.h.fastq.gz
+fastqc -t 1 -o ${out} --noextract ${out}/${name}.R2.polyg.h.fastq.gz
+

@@ -1,0 +1,44 @@
+#!/bin/bash
+
+## load modules 
+module load gcc/4.8.2 gdc java/1.8.0_73 sambamba/0.6.1 
+
+##number of processors used per job
+proc=2
+
+
+#get name of individual according to jobindex
+ind=$LSB_JOBINDEX
+short="DF$ind"
+
+
+##Defining all the paths 
+in_path="/path/to/processed/bams"
+out_path="/path/to/output"
+
+
+#===========================salmon_FR_sorted_dup_WFRef.bam===============================================================
+
+sambamba merge /dev/stdout ${in_path}/${short}_FR_sorted_dup_WFRef_hiseq.bam ${in_path}/${short}_M_sorted_dup_WFRef_hiseq.bam -p | sambamba sort /dev/stdin -o /dev/stdout t ${proc} -m 40GB --tmpdir ${TMPDIR} -l 9 > ${out_path}/${short}_complete_hiseq.bam
+sambamba index ${out_path}/${short}_complete_hiseq.bam
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

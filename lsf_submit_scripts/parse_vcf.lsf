@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#load modules
+module load python/2.7.6
+
+#"parseVCF.py" python script downloaded from https://github.com/simonhmartin/genomics_general/blob/master/VCF_processing/parseVCF.py
+python parseVCF.py -i ./min_30_ind_salmon_phased.vcf.gz | gzip > ./min_30_ind_salmon_phased.geno.gz
+
