@@ -1,5 +1,6 @@
 #Needs input files from twisst_to_bed.R
 library(iNEXT)
+library(ggplot2)
 
 incfeq_list<-list(as.incfreq(total[4:length(total[1,])]),as.incfreq(total_bf[,4:length(total_bf[1,])]),as.incfreq(total_gf[,4:length(total_gf[1,])]),as.incfreq(total_sf[,4:length(total_sf[1,])]))
 #all together (something not working)
@@ -18,11 +19,13 @@ rare_bf<-ChaoRichness(incfeq_list[[2]],datatype = "incidence_freq")
 rare_gf<-ChaoRichness(incfeq_list[[3]],datatype = "incidence_freq")
 rare_sf<-ChaoRichness(incfeq_list[[4]],datatype = "incidence_freq")
 
-library(ggplot2)
 
+
+
+
+#Plot rarefaction curve
 dev.off()
 par(mfrow=c(2,2))
-#Plot rarefaction curve
 total_plot<-ggiNEXT(x=out_all,type=1,grey=T) +
   xlab("Number of individuals sampled") + 
   ylab("Introgressed windows") +   
