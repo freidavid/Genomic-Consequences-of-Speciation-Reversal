@@ -3,13 +3,6 @@ dev.off()
 library(RColorBrewer)
 colors<-brewer.pal(12, name="Paired")
 greys<-brewer.pal(9, name="Greys")
-cols2<-cbind(greys[3],greys[3],greys[3],colors[8],colors[2],colors[2],colors[4],colors[4],colors[8],colors[3],colors[3],colors[7],greys[3],colors[1],colors[1],greys[3],colors[7],colors[7],greys[3],greys[3],greys[3],greys[3],greys[3],greys[3])
-cols3<-cbind(greys[3],greys[3],greys[3],colors[10],colors[2],colors[2],colors[4],colors[4],colors[10],colors[3],colors[3],colors[9],greys[3],colors[1],colors[1],greys[3],colors[9],colors[9],greys[3],greys[3],greys[3],greys[3],greys[3],greys[3])
-GF = colors[8]
-SF = colors[4]
-BF = colors[2]
-
-
 
 
 #Figure 1
