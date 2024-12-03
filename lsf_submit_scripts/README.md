@@ -1,5 +1,5 @@
 This folder contains all lsf submit scripts including the commands used to generate the results of Frei et al. Speciation reversal impacts genomes of all species in an adaptive radiation.
-The scripts include the whole bioninormatic pipeline:
+The scripts include the whole bioinformatic pipeline:
  - preprocessing of raw reads
   - mapping
   - post-processing of bam files
